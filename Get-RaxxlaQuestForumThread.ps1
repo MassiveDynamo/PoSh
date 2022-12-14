@@ -1,5 +1,5 @@
 <# Download and do a HTML parsing of the pages in The Quest To Find Raxxla.
-FireFox worked best, Internet Explorer & MS Edge did not with Selenium on my machine.
+FireFox worked best, Internet Explorer & MS Edge did not work with Selenium on my machine.
 #>
 
 If (-not (Get-Module -ErrorAction Ignore -ListAvailable Selenium)) {
