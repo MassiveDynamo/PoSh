@@ -24,7 +24,7 @@ for ( $i = 1; $i -lt 1424; $i++) {
         $stopwatch = [system.diagnostics.stopwatch]::StartNew()
         $driver.Url = $url + "page-" + $i
         
-        # Downloading took 2.5-3.5 seconds on my laptop
+        # Downloading took ~2.5-3.5 seconds on my laptop
         Write-Host "Downloading page $i took $($stopwatch.ElapsedMilliseconds) ms"
         Set-Content -Path $fileName -Value $driver.PageSource
     }
@@ -33,7 +33,7 @@ for ( $i = 1; $i -lt 1424; $i++) {
     $htmlDom = ConvertFrom-Html -Path $filename
     $htmlDom.SelectNodes('//div') | ForEach-Object InnerText | Set-Content -Path "c:\temp\page-$i.txt"
     
-    # Parsing took 25 ms on my laptop
+    # Parsing took ~25 ms on my laptop
     Write-Host "Parsing page $i took $($stopwatch.ElapsedMilliseconds) ms"
 }
 
