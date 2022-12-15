@@ -2,15 +2,34 @@
 FireFox worked best, Internet Explorer & MS Edge did not work with Selenium on my machine.
 #>
 
+function Get-ChildNodeText {
+    param (
+        $node,
+        [System.Text.StringBuilder]$buffer
+    )
+    
+    if ( $node.NodeType -eq [HtmlAgilityPack.HtmlNodeType]::Element) {
+        foreach ( $child in $node.ChildNodes ) {
+            Get-ChildNodeText $child $buffer
+        }
+    }
+    elseif ($node.NodeType -eq [HtmlAgilityPack.HtmlNodeType]::Text) {
+        $trimmed = $node.InnerText.Trim()
+        if( $trimmed.Length -gt 0) {
+            [void]$buffer.AppendLine($trimmed)
+        }
+    }
+}
+
 If (-not (Get-Module -ErrorAction Ignore -ListAvailable Selenium)) {
-    Write-Verbose "Installing Seleniummo dule for the current user..."
+    Write-Verbose "Installing Selenium for the current user..."
     Install-Module Selenium -ErrorAction Stop
 }
   
 If (-not (Get-Module -ErrorAction Ignore -ListAvailable PowerHTML)) {
     Write-Verbose "Installing PowerHTML module for the current user..."
     Install-Module PowerHTML -ErrorAction Stop
-  }
+}
 
 Import-Module Selenium -ErrorAction Stop
 Import-Module PowerHTML -ErrorAction Stop
@@ -31,7 +50,13 @@ for ( $i = 1; $i -lt 1424; $i++) {
     
     $stopwatch = [system.diagnostics.stopwatch]::StartNew()
     $htmlDom = ConvertFrom-Html -Path $filename
-    $htmlDom.SelectNodes('//div') | ForEach-Object InnerText | Set-Content -Path "c:\temp\page-$i.txt"
+    $nodes = $htmlDom.SelectNodes('//div')
+    $textBuffer = [System.Text.StringBuilder]::new()
+    foreach ($node in $nodes) {
+        Get-ChildNodeText $node $textBuffer
+    }   
+
+    $textBuffer.ToString() | Set-Content -Path "c:\temp\page-$i.txt"
     
     # Parsing took ~25 ms on my laptop
     Write-Host "Parsing page $i took $($stopwatch.ElapsedMilliseconds) ms"
